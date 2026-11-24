@@ -4,12 +4,17 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>ページが見つかりません | 採用カンバン</title>
+	<?php echo Asset::css('app.css'); ?>
 </head>
-<body>
-	<main>
-		<p>404</p>
-		<h1>ページが見つかりません</h1>
-		<p>URLが正しいかご確認ください。</p>
-	</main>
+<body class="min-h-screen bg-canvas font-sans text-ink">
+	<div class="flex min-h-screen flex-col">
+		<main class="flex flex-1 items-center justify-center px-4 py-16">
+			<div class="flex max-w-[460px] flex-col items-center gap-3.5 text-center">
+				<p class="m-0 text-[64px] leading-none font-bold tracking-[0.04em] text-faint">404</p>
+				<h1 class="m-0 text-[22px] font-bold">ページが見つかりません</h1>
+				<p class="m-0 text-sm leading-[1.8] text-ink-soft">URLが正しいかご確認ください。</p>
+			</div>
+		</main>
+	</div>
 </body>
 </html>

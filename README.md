@@ -37,6 +37,49 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 
 5. **ブラウザで http://localhost にアクセス**
 
+## 開発環境の準備
+
+### Tailwind CSS のビルド
+画面のスタイルは Tailwind CSS で書きます。ビルド結果の `public/assets/css/app.css` はコミット済みなので、画面を表示するだけならこの手順は不要です。views や js のクラス名を変えたときは、ビルドし直して `app.css` も一緒にコミットしてください。
+
+1. **CLIをダウンロード**（初回だけ。リポジトリ直下で実行）
+   Node.js が要らないスタンドアロンCLIの、Linux用の実行ファイル（約100MB）を `tailwind/tailwindcss` に置きます。appコンテナの中で動かすので、自分のPCのOSに関係なくLinux用を使います。`.gitignore` で除外しているのでコミットされません。
+   ```bash
+   curl -fsSL -o tailwind/tailwindcss https://github.com/tailwindlabs/tailwindcss/releases/download/v4.3.3/tailwindcss-linux-x64
+   ```
+
+2. **appコンテナの中でビルド**（`docker` ディレクトリで実行。コンテナは起動しておく）
+   ```bash
+   docker compose exec -w /var/www/html/my_fuel_project app sh -c "chmod +x tailwind/tailwindcss && ./tailwind/tailwindcss -i tailwind/input.css -o public/assets/css/app.css --minify"
+   ```
+   - Dockerfile に WORKDIR がないため、`-w` でプロジェクトのフォルダを指定します
+   - Git Bash では `-w` のパスが書き換えられてしまうので、先頭に `MSYS_NO_PATHCONV=1 ` を付けます
+
+クラス名を探す場所は `tailwind/input.css` の `@source` で指定しています（`fuel/app/views`、`public/assets/js`）。
+
+### テスト（PHPUnit）
+テストは `php oil test` で実行します。PHPUnit 5.7 は appコンテナのイメージに入っています（`docker/Dockerfile`）。FuelPHP 1.8 の `TestCase` が `PHPUnit_Framework_TestCase` を継承しているため、それがある5系を使います。テストは `fuel/app/tests/` に置き、`fuel/app/phpunit.xml` の設定でアプリのテストだけを実行します。
+
+以下のコマンドは `docker` ディレクトリで実行します。Git Bash では先頭に `MSYS_NO_PATHCONV=1 ` を付けます。
+
+1. **appコンテナを作り直す**（PHPUnit が入る前にコンテナを作った人だけ。`docker compose exec app phpunit --version` で確認できます）
+   ```bash
+   docker compose build app
+   docker compose up -d app
+   ```
+
+2. **テスト用DBを作る**（初回だけ）
+   テストは `FUEL_ENV=test` で動き、`fuel/app/config/test/db.php` のテスト用DB `fuelphp_test` に接続します。開発用DBのデータを消さないよう、別のDBにしています。
+   ```bash
+   docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS fuelphp_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+   ```
+
+3. **テストを実行する**
+   ```bash
+   docker compose exec -w /var/www/html/my_fuel_project app php oil test
+   ```
+   最後に `OK (... tests, ... assertions)` と出れば成功です。失敗やエラーになったテストがあると、終了コードが0以外になります。
+
 ## PHP周りのバージョン
 - **PHP**: 7.3
 - **FuelPHP**: 1.8
@@ -61,4 +104,4 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 - **ポート**: `3306`（`compose.noport.yml` を足して起動した場合は、PCからはつなげません）
 - **ユーザー名**: `root`
 - **パスワード**: `root`
-- **データベース名**: `fuelphp`
+- **データベース名**: `fuelphp`（テスト用は `fuelphp_test`）
