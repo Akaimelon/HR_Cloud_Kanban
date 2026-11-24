@@ -7,6 +7,8 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 
 ## セットアップ手順
 
+手順3からは `docker` ディレクトリで実行します。
+
 1. **リポジトリをクローン**
    ```bash
    git clone <リポジトリURL>
@@ -14,29 +16,26 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 
 2. **dockerディレクトリに移動**
    ```bash
-   cd docker
+   cd <クローンしたディレクトリ>/docker
    ```
 
-3. **データベース名の設定**
-   `docker-compose.yml` 内の `db` サービスにある `MYSQL_DATABASE` の値を、各自任意のデータベース名に設定してください。
-   
-   例:
-   ```yaml
-   environment:
-     MYSQL_ROOT_PASSWORD: root
-     MYSQL_DATABASE: <your_database_name>  # 任意のデータベース名を指定
-   ```
-
-4. **Dockerイメージのビルド**
+3. **Dockerイメージのビルド**
    ```bash
-   docker-compose build
+   docker compose build
    ```
 
-5. **コンテナの起動**
+4. **コンテナの起動**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
-6. **ブラウザからlocalhostにアクセス**
+   PCの3306番をほかの MySQL（Windows に入れた MySQL など）が使っていると、`ports are not available: exposing port TCP 0.0.0.0:3306` のエラーになり、コンテナが起動しません。そのときは、dbのポートをPCに公開しない上書きファイル `compose.noport.yml` を足して起動します。
+   ```bash
+   docker compose -f docker-compose.yml -f compose.noport.yml up -d
+   ```
+   - アプリは Docker のネットワークの中で `db` という名前でDBに接続するので、公開を外しても動きます。PCから MySQL Workbench などで直接つなぐことはできなくなります
+   - `!reset` を使うので、Docker Compose 2.24 以上が必要です（`docker compose version` で確認できます）
+
+5. **ブラウザで http://localhost にアクセス**
 
 ## PHP周りのバージョン
 - **PHP**: 7.3
@@ -44,7 +43,7 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 
 ## ログについて
 - **アクセスログ**: Dockerのコンテナのログ
-- **FuelPHPのエラーログ**: /var/www/html/intern_kadai/fuel/app/logs/
+- **FuelPHPのエラーログ**: /var/www/html/my_fuel_project/fuel/app/logs/
   - 年月日ごとにログが管理されている
   - tail -f {見たいログファイル}でログを出力
 
@@ -55,11 +54,11 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 - **ポート**: `3306`
 - **環境変数**:
   - `MYSQL_ROOT_PASSWORD`: root
-  - `MYSQL_DATABASE`: 各自設定したデータベース名
+  - `MYSQL_DATABASE`: fuelphp
 
 ### アクセス情報
 - **ホスト**: `localhost`
-- **ポート**: `3306`
+- **ポート**: `3306`（`compose.noport.yml` を足して起動した場合は、PCからはつなげません）
 - **ユーザー名**: `root`
 - **パスワード**: `root`
-- **データベース名**: 各自設定した名前
+- **データベース名**: `fuelphp`
