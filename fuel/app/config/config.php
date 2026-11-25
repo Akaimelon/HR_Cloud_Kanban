@@ -6,6 +6,13 @@
 return array(
 
 	'security' => array(
+		/**
+		 * CSRFトークンを24時間使い続ける
+		 * 0（既定）だとリクエストのたびにトークンが作り直され、
+		 * 複数タブで開いたときや、画面表示のあとにAPIを呼んだときに古いトークンが弾かれるため
+		 */
+		'csrf_expiration' => 86400,
+
 		// URL の文字列を htmlentities にかけてから使う。URL に入れられたタグが、そのまま HTML として出ないようにするため
 		'uri_filter' => array('htmlentities'),
 
