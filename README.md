@@ -7,7 +7,7 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
 
 ## セットアップ手順
 
-手順3からは `docker` ディレクトリで実行します。
+手順3からは `docker` ディレクトリで実行します。Git Bash では、`-w` を使うコマンドの先頭に `MSYS_NO_PATHCONV=1 ` を付けます（`-w` のパスが Windows のパスに書き換えられてしまうため）。
 
 1. **リポジトリをクローン**
    ```bash
@@ -34,8 +34,17 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
    ```
    - アプリは Docker のネットワークの中で `db` という名前でDBに接続するので、公開を外しても動きます。PCから MySQL Workbench などで直接つなぐことはできなくなります
    - `!reset` を使うので、Docker Compose 2.24 以上が必要です（`docker compose version` で確認できます）
+   - 以降の `docker compose exec` は、どちらで起動した場合も `-f` なしで実行できます
 
-5. **ブラウザで http://localhost にアクセス**
+5. **テーブルを作る**（マイグレーション。初回と、マイグレーションを追加したとき）
+   開発用DB `fuelphp` に、users・boards・statuses・cards のテーブルを作ります。DB名は `docker-compose.yml` の `MYSQL_DATABASE` と `fuel/app/config/development/db.php` で揃えてあるので、変えずに使います。
+   ```bash
+   docker compose exec -w /var/www/html/my_fuel_project app php oil refine migrate
+   ```
+   - Dockerfile に WORKDIR がないため、`-w` でプロジェクトのフォルダを指定します
+   - dbコンテナは起動してから数十秒は接続を受け付けません。`Connection refused` のエラーになったら、少し待ってからやり直してください
+
+6. **ブラウザで http://localhost にアクセス**
 
 ## 開発環境の準備
 
@@ -74,7 +83,12 @@ Dockerの基本的な概念については、以下のリンクを参考にし�
    docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS fuelphp_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
    ```
 
-3. **テストを実行する**
+3. **テスト用DBにテーブルを作る**（初回と、マイグレーションを追加したとき）
+   ```bash
+   docker compose exec -e FUEL_ENV=test -w /var/www/html/my_fuel_project app php oil refine migrate
+   ```
+
+4. **テストを実行する**
    ```bash
    docker compose exec -w /var/www/html/my_fuel_project app php oil test
    ```
