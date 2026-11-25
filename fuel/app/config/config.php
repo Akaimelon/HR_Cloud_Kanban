@@ -28,4 +28,18 @@ return array(
 			'Closure',
 		),
 	),
+
+	/**
+	 * Cookieの既定の属性
+	 *
+	 * http_only : JavaScriptからCookieを読めなくする。セッションCookieには効かないため、
+	 *             config/session.php の cookie_http_only でも指定している
+	 * samesite  : 別サイトからのPOSTにCookieを付けない（CSRFトークンに重ねる対策）
+	 *             FuelPHP 1.8 の Cookie クラスにはないため、classes/cookie.php で追加している
+	 */
+	'cookie' => array(
+		'secure'    => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+		'http_only' => true,
+		'samesite'  => 'Lax',
+	),
 );
