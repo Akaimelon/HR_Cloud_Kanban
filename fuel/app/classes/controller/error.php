@@ -1,6 +1,8 @@
 <?php
 /**
  * エラー画面を出すコントローラ。routes.php の _404_ から呼ばれる。
+ *
+ * Controller_Base を継承しないのは、未ログインでも404画面を出すため（ログイン画面へ転送しない）。
  */
 class Controller_Error extends Controller
 {
@@ -14,6 +16,8 @@ class Controller_Error extends Controller
 	 */
 	public function action_404()
 	{
-		return Response::forge(View::forge('404'), 404);
+		return Response::forge(View::forge('404', array(
+			'user_email' => Guard::user_email(),
+		)), 404);
 	}
 }

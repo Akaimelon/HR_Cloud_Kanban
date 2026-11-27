@@ -8,6 +8,7 @@
 </head>
 <body class="min-h-screen bg-canvas font-sans text-ink">
 	<div class="flex min-h-screen flex-col">
+		<?php echo render('_header', array('user_email' => $user_email)); ?>
 		<main class="flex flex-1 items-center justify-center px-4 py-16">
 			<div class="flex max-w-[460px] flex-col items-center gap-3.5 text-center">
 				<p class="m-0 text-[64px] leading-none font-bold tracking-[0.04em] text-faint">404</p>
